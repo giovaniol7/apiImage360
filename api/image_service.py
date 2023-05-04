@@ -7,7 +7,7 @@ image = Blueprint('image',__name__)
 def instructions():
     return "Image"
 
-@image.route('/stitch/<img>', methods=['GET'])
+@image.route('/stitch/<img>', methods=['POST'])
 def stitch_images(img):
     # Recupera a lista de imagens enviada na requisição
     images = request.files.getlist(img)
