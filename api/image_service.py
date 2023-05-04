@@ -13,7 +13,7 @@ def stitch_images(img):
     images = request.files.getlist(img)
 
     # Lê as imagens em memória usando OpenCV
-    images_data = [cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_COLOR) for image in images]
+    images_data = [cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_COLOR) for img in images]
 
     # Faz o stitch das imagens
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher_create()
@@ -25,4 +25,4 @@ def stitch_images(img):
         return None
 
     # retorna a imagem resultante
-    return stitched_image
+    return send_file(stitched_image)
