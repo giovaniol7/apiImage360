@@ -19,11 +19,10 @@ def stitch_images(img):
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher_create()
     status, stitched_image = stitcher.stitch(images_data)
 
-     # Verificação do status da costura
-    if status == 0:
-        # Conversão da imagem resultante para um objeto de resposta
-        _, buffer = cv2.imencode('.jpg', stitched_image)
-        response = Response(buffer.tobytes(), mimetype='image/jpeg')
-        return response
-    else:
-        return 'Erro ao costurar imagens'
+    # verifica se o stitching foi bem-sucedido
+    if status != cv2.Stitcher_OK:
+        print("Erro ao unir as imagens")
+        return None
+
+    # retorna a imagem resultante
+    return stitched_image
