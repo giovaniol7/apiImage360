@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 from flask import Flask, Blueprint, request, jsonify
 
 image = Blueprint('image',__name__)
