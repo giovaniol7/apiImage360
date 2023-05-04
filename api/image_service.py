@@ -34,4 +34,4 @@ def stitch_images(img):
     cv2.imwrite(stitched_image_path, stitched_image)
 
     # Retorna o arquivo de imagem costurada como uma resposta HTTP
-    return send_file(stitched_image_path, mimetype='image/jpeg')
+    return stitched_image_path
