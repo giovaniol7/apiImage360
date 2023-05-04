@@ -7,22 +7,31 @@ image = Blueprint('image',__name__)
 def instructions():
     return "Image"
 
-@image.route('/stitch/<img>', methods=['GET'])
+@image.route('/stitch/<img>', methods=['POST'])
 def stitch_images(img):
-    # Recupera a lista de imagens enviada na requisição
-    images = request.files.getlist(img)
+     # Obtém a lista de arquivos da solicitação
+    files = request.files.getlist('img')
+    
+    # Salva os arquivos temporariamente no servidor
+    image_paths = []
+    for file in files:
+        filename = secure_filename(file.filename)
+        image_path = os.path.join('/tmp', filename)
+        file.save(image_path)
+        image_paths.append(image_path)
 
-    # Lê as imagens em memória usando OpenCV
-    images_data = [cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_COLOR) for img in images]
+    # Faz a costura das imagens usando OpenCV
+    stitched_image = None
+    for image_path in image_paths:
+        image = cv2.imread(image_path)
+        if stitched_image is None:
+            stitched_image = image
+        else:
+            stitched_image = cv2.addWeighted(stitched_image, 0.5, image, 0.5, 0)
 
-    # Faz o stitch das imagens
-    stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher_create()
-    status, stitched_image = stitcher.stitch(images_data)
+    # Salva a imagem costurada em um arquivo temporário
+    stitched_image_path = os.path.join('/tmp', 'stitched.jpg')
+    cv2.imwrite(stitched_image_path, stitched_image)
 
-    # verifica se o stitching foi bem-sucedido
-    if status != cv2.Stitcher_OK:
-        print("Erro ao unir as imagens")
-        return None
-
-    # retorna a imagem resultante
-    return send_file(stitched_image)
+    # Retorna o arquivo de imagem costurada como uma resposta HTTP
+    return send_file(stitched_image_path, mimetype='image/jpeg')
