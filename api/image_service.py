@@ -1,37 +1,40 @@
 import cv2
-from flask import Flask, Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify, Response, send_file
+import numpy as np
+import requests
 
 image = Blueprint('image',__name__)
 
 @image.route('/')
 def instructions():
-    return "Image"
+    return "Image"  
 
-@image.route('/stitch/<img>', methods=['POST'])
-def stitch_images(img):
-     # Obtém a lista de arquivos da solicitação
-    files = request.files.getlist('img')
-    
-    # Salva os arquivos temporariamente no servidor
-    image_paths = []
-    for file in files:
-        filename = secure_filename(file.filename)
-        image_path = os.path.join('/tmp', filename)
-        file.save(image_path)
-        image_paths.append(image_path)
+def stitch_images(files):
+    # cria um objeto Stitcher
+    stitcher = cv2.createStitcher()
 
-    # Faz a costura das imagens usando OpenCV
-    stitched_image = None
-    for image_path in image_paths:
-        image = cv2.imread(image_path)
-        if stitched_image is None:
-            stitched_image = image
-        else:
-            stitched_image = cv2.addWeighted(stitched_image, 0.5, image, 0.5, 0)
+    # cria uma lista de imagens a serem unidas
+    images = [cv2.imread(file) for file in files]
 
-    # Salva a imagem costurada em um arquivo temporário
-    stitched_image_path = os.path.join('/tmp', 'stitched.jpg')
-    cv2.imwrite(stitched_image_path, stitched_image)
+    # realiza o processo de stitching
+    (status, result) = stitcher.stitch(images)
 
-    # Retorna o arquivo de imagem costurada como uma resposta HTTP
-    return stitched_image_path
+    # verifica se o stitching foi bem sucedido
+    if status == cv2.Stitcher_OK:
+        # retorna a imagem final
+        return result
+    else:
+        # retorna uma mensagem de erro
+        return 'Erro ao unir imagens: código de status {}'.format(status
+
+@image.route('/stitch', methods=['POST'])
+def stitch():
+    files = request.get_json()['files']
+    result = stitch_files(files)
+    if isinstance(result, str):
+        return result
+    else:
+        # converte a imagem para o formato JPEG
+        _, img_encoded = cv2.imencode('.jpg', result)
+        response = Response(response=img_encoded.tobytes(), content_type='image/jpeg')
+        return response
