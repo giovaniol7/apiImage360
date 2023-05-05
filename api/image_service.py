@@ -9,27 +9,30 @@ image = Blueprint('image',__name__)
 def instructions():
     return "Image"  
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+@image.route('/upload', methods=['POST'])
+def upload():
+    arquivos = request.files.getlist('file')
+    for arquivo in arquivos:
+        if arquivo and allowed_file(arquivo.filename):
+            arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], arquivo.filename))
+    return 'Arquivos recebidos com sucesso!'
+
 def stitch_images(files):
-    # cria um objeto Stitcher
     stitcher = cv2.createStitcher()
-
-    # cria uma lista de imagens a serem unidas
     images = [cv2.imread(file) for file in files]
-
-    # realiza o processo de stitching
     (status, result) = stitcher.stitch(images)
-
-    # verifica se o stitching foi bem sucedido
     if status == cv2.Stitcher_OK:
-        # retorna a imagem final
         return result
     else:
-        # retorna uma mensagem de erro
         return 'Erro ao unir imagens: código de status {}'.format(status)
 
-@image.route('/stitch', methods=['POST'])
+@image.route('/stitch/<imgList>', methods=['GET'])
 def stitch():
-    files = request.get_json()['files']
+    files = request.get_json()['imgList']
     result = stitch_files(files)
     if isinstance(result, str):
         return result
