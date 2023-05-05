@@ -2,8 +2,11 @@ import cv2
 from flask import Flask, Blueprint, request, jsonify, Response, send_file
 import numpy as np
 import requests
+import os
 
 image = Blueprint('image',__name__)
+
+app.config['IMAGES_FOLDER'] = 'caminho/para/a/pasta/de/imagens'
 
 @image.route('/')
 def instructions():
@@ -15,11 +18,13 @@ def allowed_file(filename):
 
 @image.route('/upload', methods=['POST'])
 def upload():
-    arquivos = request.files.getlist('file')
-    for arquivo in arquivos:
-        if arquivo and allowed_file(arquivo.filename):
-            arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], arquivo.filename))
-    return 'Arquivos recebidos com sucesso!'
+    # montar o caminho completo para o arquivo de imagem
+    filepath = os.path.join(app.config['IMAGES_FOLDER'], filename)
+    # verificar se o arquivo de imagem existe
+    if not os.path.isfile(filepath):
+        return Response(status=404)
+    # retornar a imagem como uma resposta com o tipo de mídia correto
+    return send_file(filepath, mimetype='image/jpeg')
 
 def stitch_images(files):
     stitcher = cv2.createStitcher()
