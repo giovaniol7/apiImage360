@@ -6,7 +6,7 @@ import os
 
 image = Blueprint('image',__name__)
 
-app.config['IMAGES_FOLDER'] = 'caminho/para/a/pasta/de/imagens'
+image.config['IMAGES_FOLDER'] = 'caminho/para/a/pasta/de/imagens'
 
 @image.route('/')
 def instructions():
@@ -14,12 +14,12 @@ def instructions():
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+           filename.rsplit('.', 1)[1].lower() in image.config['ALLOWED_EXTENSIONS']
 
 @image.route('/upload', methods=['POST'])
 def upload():
     # montar o caminho completo para o arquivo de imagem
-    filepath = os.path.join(app.config['IMAGES_FOLDER'], filename)
+    filepath = os.path.join(image.config['IMAGES_FOLDER'], filename)
     # verificar se o arquivo de imagem existe
     if not os.path.isfile(filepath):
         return Response(status=404)
