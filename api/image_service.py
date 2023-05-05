@@ -25,7 +25,7 @@ def stitch_images(files):
         return result
     else:
         # retorna uma mensagem de erro
-        return 'Erro ao unir imagens: código de status {}'.format(status
+        return 'Erro ao unir imagens: código de status {}'.format(status)
 
 @image.route('/stitch', methods=['POST'])
 def stitch():
