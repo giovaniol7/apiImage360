@@ -60,7 +60,7 @@ def stitch_images():
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         images.append(img)
 
-    stitcher = cv2.Stitcher.create() #if cv2.__version__.startswith('3') else cv2.Stitcher.create()
+    stitcher = cv2.createStitcher() #if cv2.__version__.startswith('3') else cv2.Stitcher.create()
     status, stitched_image = stitcher.stitch(images)
     if status != cv2.Stitcher_OK:
         return jsonify({'error': 'Image stitching failed.'}), 500
