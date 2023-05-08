@@ -14,10 +14,18 @@ def instructions():
 @image.route('/upload', methods=['POST'])
 def upload():
    if request.method=="POST":
+
         pasta = './stitchImage/'
-        for arquivo in os.listdir(pasta):
-            if arquivo.endswith('.jpg'):
-                os.remove(os.path.join(pasta, arquivo))
+
+        if os.path.exists(pasta):
+            for arquivo in os.listdir(pasta):
+                if arquivo.endswith('.jpg'):
+                    os.remove(os.path.join(pasta, arquivo))
+
+        pasta2 = './upload/'
+
+        if not os.path.exists(pasta2):
+            os.makedirs(pasta2)
 
         #taking image from flutter front-end 
         imagefile=request.files['imagem']
@@ -35,12 +43,13 @@ def get_stitched_image():
     stitched_image_path = 'stitchImage/stitched_image.jpg'
 
     pasta = './upload/'
+    pasta2 = './stitchImage/'
 
     # Check if stitched image exists
-    if not os.path.exists(stitched_image_path):
-        for arquivo in os.listdir(pasta):
+    if not os.path.exists(pasta2):
+        for arquivo in os.listdir(pasta2):
             if arquivo.endswith('.jpg'):
-                os.remove(os.path.join(pasta, arquivo))
+                return jsonify({'message': 'Image success.'}), 200
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
