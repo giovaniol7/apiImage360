@@ -40,7 +40,7 @@ def get_stitched_image():
     # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
 
-    stitched_image_path = 'stitchImage/stitched_image.jpg'
+    stitched_image_path = 'stitchImage/stitched_image.png'
 
     pasta = './upload/'
     pasta2 = './stitchImage/'
@@ -52,8 +52,8 @@ def get_stitched_image():
         if arquivo.endswith('.jpg'):
             os.remove(os.path.join(pasta, arquivo))
 
-    # Return the stitched image
-    return send_file(stitched_image_path, mimetype='image/jpg')
+    return send_file(stitched_image_path, mimetype='image/png')
+
 
 def stitch_images():
     upload_dir = 'upload'
@@ -73,7 +73,7 @@ def stitch_images():
         output_dir = 'stitchImage'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        output_path = os.path.join(output_dir, 'stitched_image.jpg')
+        output_path = os.path.join(output_dir, 'stitched_image.png')
         cv2.imwrite(output_path, stitched_image)
 
         return jsonify({'message': 'Image success.'}), 200
