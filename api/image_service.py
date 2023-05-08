@@ -4,6 +4,8 @@ import numpy as np
 import requests
 import os
 from werkzeug.utils import secure_filename
+import imutils
+from imutils import paths
 
 image = Blueprint('image',__name__)
 
@@ -49,7 +51,11 @@ def get_stitched_image():
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
+        if arquivo.endswith('.png'):
+            os.remove(os.path.join(pasta, arquivo))
         if arquivo.endswith('.jpg'):
+            os.remove(os.path.join(pasta, arquivo))
+        if arquivo.endswith('.jpeg'):
             os.remove(os.path.join(pasta, arquivo))
 
     return send_file(stitched_image_path, mimetype='image/png')
@@ -57,11 +63,14 @@ def get_stitched_image():
 
 def stitch_images():
     upload_dir = 'upload'
-    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg')] #or f.endswith('.png') or f.endswith('.jpeg')]
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg') or f.endswith('.png') or f.endswith('.jpeg')]
 
     images = []
     for path in image_paths:
         img = cv2.imread(path)
+        img = np.array(img)
+        if(len(img.shape)==2):
+            img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         images.append(img)
 
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
@@ -69,7 +78,31 @@ def stitch_images():
     if status != cv2.Stitcher_OK:
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
-        # Save stitched image to output directory
+        stitched_image = cv2.copyMakeBorder(stitched_image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
+        gray = cv2.cvtColor(stitched_image, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)[1]
+
+        cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        c = max(cnts, key=cv2.contourArea)
+
+        mask = np.zeros(thresh.shape, dtype="uint8")
+        (x, y, w, h) = cv2.boundingRect(c)
+        cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
+
+        minRect = mask.copy()
+        sub = mask.copy()
+        while cv2.countNonZero(sub) > 0:
+            minRect = cv2.erode(minRect, None)
+            sub = cv2.subtract(minRect, thresh)
+            
+        cnts = cv2.findContours(minRect.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        c = max(cnts, key=cv2.contourArea)
+        (x, y, w, h) = cv2.boundingRect(c)
+        stitched_image = stitched_image[y:y + h, x:x + w]
+
+        # Save stitched image to output directory    
         output_dir = 'stitchImage'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
