@@ -66,6 +66,7 @@ def stitch_images():
     images = []
     for path in image_paths:
         img = cv2.imread(path)
+        img = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         images.append(img)
 
