@@ -55,8 +55,6 @@ def get_stitched_image():
             os.remove(os.path.join(pasta, arquivo))
         if arquivo.endswith('.jpg'):
             os.remove(os.path.join(pasta, arquivo))
-        if arquivo.endswith('.jpeg'):
-            os.remove(os.path.join(pasta, arquivo))
 
     return send_file(stitched_image_path, mimetype='image/png')
 
