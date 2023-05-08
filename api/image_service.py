@@ -49,7 +49,7 @@ def get_stitched_image():
     if not os.path.exists(pasta2):
         for arquivo in os.listdir(pasta2):
             if arquivo.endswith('.jpg'):
-                return jsonify({'message': 'Image success.'}), 200
+                return send_file(stitched_image_path, mimetype='image/jpg')
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
@@ -73,6 +73,7 @@ def stitch_images():
     stitcher = cv2.createStitcher() #if cv2.__version__.startswith('3') else cv2.Stitcher.create()
     status, stitched_image = stitcher.stitch(images)
     if status != cv2.Stitcher_OK:
+        print("FODASSE")
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
         # Save stitched image to output directory
