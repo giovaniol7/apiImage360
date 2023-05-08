@@ -45,11 +45,7 @@ def get_stitched_image():
     pasta = './upload/'
     pasta2 = './stitchImage/'
 
-    # Check if stitched image exists
-    if not os.path.exists(pasta2):
-        for arquivo in os.listdir(pasta2):
-            if arquivo.endswith('.jpg'):
-                return send_file(stitched_image_path, mimetype='image/jpg')
+    if not os.path.exists(stitched_image_path):
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
@@ -70,12 +66,13 @@ def stitch_images():
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         images.append(img)
 
-    stitcher = cv2.createStitcher() #if cv2.__version__.startswith('3') else cv2.Stitcher.create()
+    stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
     status, stitched_image = stitcher.stitch(images)
     if status != cv2.Stitcher_OK:
-        print("FODASSE")
+        print("FODASSE1")
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
+        print("FODASSE2")
         # Save stitched image to output directory
         output_dir = 'stitchImage'
         if not os.path.exists(output_dir):
