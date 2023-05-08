@@ -57,7 +57,7 @@ def get_stitched_image():
 
 def stitch_images():
     upload_dir = 'upload'
-    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg') or f.endswith('.png') or f.endswith('.jpeg')]
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg') #or f.endswith('.png') or f.endswith('.jpeg')]
 
     images = []
     for path in image_paths:
