@@ -62,17 +62,13 @@ def stitch_images():
     images = []
     for path in image_paths:
         img = cv2.imread(path)
-        img = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         images.append(img)
 
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
     status, stitched_image = stitcher.stitch(images)
     if status != cv2.Stitcher_OK:
-        print("FODASSE1")
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
-        print("FODASSE2")
         # Save stitched image to output directory
         output_dir = 'stitchImage'
         if not os.path.exists(output_dir):
