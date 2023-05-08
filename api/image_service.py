@@ -19,7 +19,7 @@ def upload():
 
         if os.path.exists(pasta):
             for arquivo in os.listdir(pasta):
-                if arquivo.endswith('.jpg'):
+                if arquivo.endswith('.png'):
                     os.remove(os.path.join(pasta, arquivo))
 
         pasta2 = './upload/'
