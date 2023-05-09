@@ -65,39 +65,32 @@ def get_stitched_image():
 
 def stitch_images():
     upload_dir = './upload/'
-    temp_dir = './temp/'
+    #temp_dir = './temp/'
     image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
 
     images = []
 
-    for path in image_paths:
+    for i, path in enumerate(image_paths):
         img = cv2.imread(path)
         img = np.array(img)
+
         if(len(img.shape)==2):
             img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        images.append(img)
 
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
+        filename = f'./temp/image{i}.png'
+        cv2.imwrite(filename, img)
 
-    for i, img in enumerate(images):
-        filename = f'image{i}.png'
-        temp_path = os.path.join(temp_dir, filename)
-        cv2.imwrite(temp_path, img)
+        images.append(cv2.imread(filename))
 
-    imagetemp_paths = [os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith(('.png'))]
-
-    imagestemp = []
-
-    for path2 in imagetemp_paths:
-        img2 = cv2.imread(path2)
-        img2 = np.array(img2)
-        if(len(img2.shape)==2):
-            img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
-        imagestemp.append(img2)
+    #for path in image_paths:
+    #    img = cv2.imread(path)
+    #    img = np.array(img)
+    #    if(len(img.shape)==2):
+    #        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+    #    images.append(img)
 
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
-    status, stitched_image = stitcher.stitch(imagestemp)
+    status, stitched_image = stitcher.stitch(images)
     if status != cv2.Stitcher_OK:
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
