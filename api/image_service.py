@@ -21,7 +21,7 @@ def upload():
 
         if os.path.exists(pasta):
             for arquivo in os.listdir(pasta):
-                if arquivo.endswith('.jpeg'):
+                if arquivo.endswith('.jpg'):
                     os.remove(os.path.join(pasta, arquivo))
 
         pasta2 = './upload/'
@@ -42,7 +42,7 @@ def get_stitched_image():
     # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
 
-    stitched_image_path = 'stitchImage/stitched_image.jpeg'
+    stitched_image_path = 'stitchImage/stitched_image.jpg'
 
     pasta = './upload/'
     pasta2 = './stitchImage/'
@@ -51,15 +51,15 @@ def get_stitched_image():
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
-        if arquivo.endswith('.jpeg'):
+        if arquivo.endswith('.jpg'):
             os.remove(os.path.join(pasta, arquivo))
 
-    return send_file(stitched_image_path, mimetype='image/jpeg')
+    return send_file(stitched_image_path, mimetype='image/jpg')
 
 
 def stitch_images():
     upload_dir = 'upload'
-    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpeg')]
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg')]
 
     #images = []
     #for path in image_paths:
@@ -117,7 +117,7 @@ def stitch_images():
         output_dir = 'stitchImage'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        output_path = os.path.join(output_dir, 'stitched_image.jpeg')
+        output_path = os.path.join(output_dir, 'stitched_image.jpg')
         cv2.imwrite(output_path, stitched_image)
 
         return jsonify({'message': 'Image success.'}), 200
