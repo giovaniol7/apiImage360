@@ -61,27 +61,12 @@ def stitch_images():
     upload_dir = 'upload'
     image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg')]
 
-    #images = []
-    #for path in image_paths:
-    #    img = cv2.imread(path)
-    #    img = np.array(img)
-    #    if(len(img.shape)==2):
-    #        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-    #    images.append(img)
-
     images = []
     for path in image_paths:
-        # Ler a imagem como uma matriz de bytes
-        with open(path, 'rb') as f:
-            img_bytes = f.read()
-
-        # Decodificar a imagem usando imdecode
-        img = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
-
-        # Converter imagem em escala de cinza para RGB
-        if len(img.shape) == 2:
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-
+        img = cv2.imread(path)
+        img = np.array(img)
+        if(len(img.shape)==2):
+            img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         images.append(img)
 
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
