@@ -18,6 +18,11 @@ def upload():
    if request.method=="POST":
 
         pasta = './stitchImage/'
+        pastatemp = './temp/'
+
+        if os.path.exists(pastatemp):
+            for arquivo in os.listdir(pastatemp):
+                os.remove(os.path.join(pastatemp, arquivo))
 
         if os.path.exists(pasta):
             for arquivo in os.listdir(pasta):
@@ -33,8 +38,9 @@ def upload():
         imagefile=request.files['imagem']
         filename=secure_filename(imagefile.filename)
         #saving image temporarily in "upload" folder 
+        #img="./upload/"+filename
         imagefile.save("./upload/"+filename)
-        img="./upload/"+filename
+        
         return filename
 
 @image.route('/stitch')
@@ -42,7 +48,7 @@ def get_stitched_image():
     # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
 
-    stitched_image_path = 'stitchImage/stitched_image.jpg'
+    stitched_image_path = 'stitchImage/stitched_image.png'
 
     pasta = './upload/'
     pasta2 = './stitchImage/'
@@ -51,17 +57,19 @@ def get_stitched_image():
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
-        if arquivo.endswith('.jpg'):
-            os.remove(os.path.join(pasta, arquivo))
+        os.remove(os.path.join(pasta, arquivo))
+        
 
-    return send_file(stitched_image_path, mimetype='image/jpg')
+    return send_file(stitched_image_path, mimetype='image/png')
 
 
 def stitch_images():
-    upload_dir = 'upload'
-    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith('.jpg')]
+    upload_dir = './upload/'
+    temp_dir = './temp/'
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
 
     images = []
+
     for path in image_paths:
         img = cv2.imread(path)
         img = np.array(img)
@@ -69,8 +77,27 @@ def stitch_images():
             img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         images.append(img)
 
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+
+    for i, img in enumerate(images):
+        filename = f'image{i}.png'
+        temp_path = os.path.join(temp_dir, filename)
+        cv2.imwrite(temp_path, img)
+
+    imagetemp_paths = [os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith(('.png'))]
+
+    imagestemp = []
+
+    for path2 in imagetemp_paths:
+        img2 = cv2.imread(path2)
+        img2 = np.array(img2)
+        if(len(img2.shape)==2):
+            img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
+        imagestemp.append(img2)
+
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
-    status, stitched_image = stitcher.stitch(images)
+    status, stitched_image = stitcher.stitch(imagestemp)
     if status != cv2.Stitcher_OK:
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
@@ -99,10 +126,10 @@ def stitch_images():
         stitched_image = stitched_image[y:y + h, x:x + w]
 
         # Save stitched image to output directory    
-        output_dir = 'stitchImage'
+        output_dir = './stitchImage/'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        output_path = os.path.join(output_dir, 'stitched_image.jpg')
+        output_path = os.path.join(output_dir, 'stitched_image.png')
         cv2.imwrite(output_path, stitched_image)
 
         return jsonify({'message': 'Image success.'}), 200
