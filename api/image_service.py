@@ -16,30 +16,17 @@ def instructions():
 @image.route('/upload', methods=['POST'])
 def upload():
    if request.method=="POST":
-
-        pasta = './stitchImage/'
+    #   pasta = './stitchImage/'
         pastatemp = './temp/'
-
         if os.path.exists(pastatemp):
-           for arquivo in os.listdir(pastatemp):
-                if arquivo.endswith('.png'):
-                    os.remove(os.path.join(pastatemp, arquivo))
-
-        if os.path.exists(pasta):
-            for arquivo in os.listdir(pasta):
-                if arquivo.endswith('.jpg'):
-                    os.remove(os.path.join(pasta, arquivo))
-                if arquivo.endswith('.png'):
-                    os.remove(os.path.join(pasta, arquivo))
-
-
-        pasta2 = './upload/'
-
-        if not os.path.exists(pasta2):
-            os.makedirs(pasta2)
-
-        print("POST")
-
+            for arquivo in os.listdir(pastatemp):
+                os.remove(os.path.join(pastatemp, arquivo))
+        #   if os.path.exists(pasta):
+        #       for arquivo in os.listdir(pasta):
+        #           if arquivo.endswith('.jpg'):
+        #               os.remove(os.path.join(pasta, arquivo))
+        #           if arquivo.endswith('.png'):
+        #               os.remove(os.path.join(pasta, arquivo))
         #taking image from flutter front-end 
         imagefile=request.files['imagem']
         filename=secure_filename(imagefile.filename)
@@ -54,13 +41,11 @@ def get_stitched_image():
     # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
 
-    print("GET")
-
     stitched_image_path = 'stitchImage/stitched_image.png'
 
     pasta = './upload/'
     pasta2 = './stitchImage/'
-
+    
     if not os.path.exists(stitched_image_path):
         return jsonify({'error': 'Stitched image not found.'}), 404
 
@@ -74,7 +59,7 @@ def get_stitched_image():
 def stitch_images():
     upload_dir = './upload/'
     #temp_dir = './temp/'
-    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith(('.jpg', '.png', '.bmp'))]
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith(('.jpeg', '.png'))]
 
     images = []
 
@@ -82,14 +67,14 @@ def stitch_images():
         img = cv2.imread(path)
         img = np.array(img)
 
-        if(len(img.shape)==2):
-            img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        #if(len(img.shape)==2):
+        #    img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
         filename = f'./temp/image{i}.png'
         cv2.imwrite(filename, img)
 
         images.append(cv2.imread(filename))
-
+        
     #for path in image_paths:
     #    img = cv2.imread(path)
     #    img = np.array(img)
@@ -99,6 +84,7 @@ def stitch_images():
 
     stitcher = cv2.createStitcher() if cv2.__version__.startswith('3') else cv2.Stitcher.create()
     status, stitched_image = stitcher.stitch(images)
+    print(status)
     if status != cv2.Stitcher_OK:
         return jsonify({'error': 'Image stitching failed.'}), 500
     else:
