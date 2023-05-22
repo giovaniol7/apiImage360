@@ -21,32 +21,40 @@ def upload():
         pastatemp = './temp/'
 
         if os.path.exists(pastatemp):
-            for arquivo in os.listdir(pastatemp):
-                os.remove(os.path.join(pastatemp, arquivo))
+           for arquivo in os.listdir(pastatemp):
+                if arquivo.endswith('.png'):
+                    os.remove(os.path.join(pastatemp, arquivo))
 
         if os.path.exists(pasta):
             for arquivo in os.listdir(pasta):
                 if arquivo.endswith('.jpg'):
                     os.remove(os.path.join(pasta, arquivo))
+                if arquivo.endswith('.png'):
+                    os.remove(os.path.join(pasta, arquivo))
+
 
         pasta2 = './upload/'
 
         if not os.path.exists(pasta2):
             os.makedirs(pasta2)
 
+        print("POST")
+
         #taking image from flutter front-end 
         imagefile=request.files['imagem']
         filename=secure_filename(imagefile.filename)
         #saving image temporarily in "upload" folder 
-        #img="./upload/"+filename
-        imagefile.save("./upload/"+filename)
+        img="./upload/"+filename
+        imagefile.save(img)
         
         return filename
 
-@image.route('/stitch')
+@image.route('/stitch', methods=['GET'])
 def get_stitched_image():
     # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
+
+    print("GET")
 
     stitched_image_path = 'stitchImage/stitched_image.png'
 
