@@ -16,59 +16,48 @@ def instructions():
 @image.route('/upload', methods=['POST'])
 def upload():
    if request.method=="POST":
-    #   pasta = './stitchImage/'
-        pastatemp = './temp/'
-        pasta = './upload/'
+        pastatemp = 'temp/'
+        pasta = 'upload/'
         
-        if not os.path.exists('./upload/'):
-            os.makedirs('./upload/')
+        if not os.path.exists('upload/'):
+            os.makedirs('upload/')
         
         if os.path.exists(pastatemp):
             for arquivo in os.listdir(pastatemp):
                 os.remove(os.path.join(pastatemp, arquivo))
-        #   if os.path.exists(pasta):
-        #       for arquivo in os.listdir(pasta):
-        #           if arquivo.endswith('.jpg'):
-        #               os.remove(os.path.join(pasta, arquivo))
-        #           if arquivo.endswith('.png'):
-        #               os.remove(os.path.join(pasta, arquivo))
-        #taking image from flutter front-end 
-                # Obtendo o arquivo de imagem enviado do front-end
+                
         if 'imagem' in request.files:
             imagefile = request.files['imagem']
-            filename = secure_filename(imagefile.filename)
-            
-            # Salvando a imagem temporariamente na pasta "temp"
+            filename = secure_filename(imagefile.filename)    
             imagefile.save(os.path.join(pasta, filename))
             
             return filename
-        else:
-            return "Nenhum arquivo de imagem enviado."
 
 @image.route('/stitch', methods=['GET'])
 def get_stitched_image():
-    # Call stitch_images() to stitch the images and save the stitched image
     stitch_images()
 
     stitched_image_path = 'stitchImage/stitched_image.png'
 
-    pasta = './upload/'
-    pasta2 = './stitchImage/'
+    pasta = 'upload/'
+    pasta2 = 'stitchImage/'
     
     if not os.path.exists(stitched_image_path):
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
         os.remove(os.path.join(pasta, arquivo))
-        
 
     return send_file(stitched_image_path, mimetype='image/png')
 
 
 def stitch_images():
-    upload_dir = './upload/'
-    temp_dir = './temp/'
-    image_paths = [os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith(('.jpeg', '.png'))]
+    upload_dir = 'upload/'
+    temp_dir = 'temp/'
+    image_paths = [os.path.join(upload_dir, f) for f in os.listdir(upload_dir) if f.endswith(('.jpeg', '.png'))]
+
+    if not os.path.exists('temp/'):
+        os.makedirs('temp/')
 
     images = []
 
@@ -77,7 +66,7 @@ def stitch_images():
         img = np.array(img)
         #if(len(img.shape)==2):
         #    img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        filename = f'./temp/image{i}.png'
+        filename = f'temp/image{i}.png'
         cv2.imwrite(filename, img)
         images.append(cv2.imread(filename))
         
@@ -118,7 +107,7 @@ def stitch_images():
         stitched_image = stitched_image[y:y + h, x:x + w]
 
         # Save stitched image to output directory    
-        output_dir = './stitchImage/'
+        output_dir = 'stitchImage/'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         output_path = os.path.join(output_dir, 'stitched_image.png')
