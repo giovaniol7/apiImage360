@@ -31,8 +31,8 @@ def upload():
         imagefile=request.files['imagem']
         filename=secure_filename(imagefile.filename)
         #saving image temporarily in "upload" folder 
-        img="./upload/"+filename
-        imagefile.save(img)
+        #img="./upload/"+filename
+        imagefile.save("./upload/"+filename)
         
         return filename
 
