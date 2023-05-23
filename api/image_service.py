@@ -19,6 +19,11 @@ def upload():
     #   pasta = './stitchImage/'
         pastatemp = './temp/'
         pasta = './upload/'
+        
+        if not os.path.exists('./upload/'):
+            # Criar o diretório se ele não existir
+            os.makedirs('./upload/')
+        
         if os.path.exists(pastatemp):
             for arquivo in os.listdir(pastatemp):
                 os.remove(os.path.join(pastatemp, arquivo))
