@@ -18,6 +18,7 @@ def upload():
    if request.method=="POST":
     #   pasta = './stitchImage/'
         pastatemp = './temp/'
+        pasta = './upload/'
         if os.path.exists(pastatemp):
             for arquivo in os.listdir(pastatemp):
                 os.remove(os.path.join(pastatemp, arquivo))
@@ -28,18 +29,17 @@ def upload():
         #           if arquivo.endswith('.png'):
         #               os.remove(os.path.join(pasta, arquivo))
         #taking image from flutter front-end 
-        
-        imagefile=request.files['imagem']
-        filename=secure_filename(imagefile.filename)
-        #saving image temporarily in "upload" folder 
-        #img="./upload/"+filename
-        
-        input_path = os.path.join("./upload/", filename)
-        cv2.imwrite(input_path, imagefile)
-        
-        #imagefile.save("./upload/"+filename)
-        
-        return filename
+                # Obtendo o arquivo de imagem enviado do front-end
+        if 'imagem' in request.files:
+            imagefile = request.files['imagem']
+            filename = secure_filename(imagefile.filename)
+            
+            # Salvando a imagem temporariamente na pasta "temp"
+            imagefile.save(os.path.join(pasta, filename))
+            
+            return filename
+        else:
+            return "Nenhum arquivo de imagem enviado."
 
 @image.route('/stitch', methods=['GET'])
 def get_stitched_image():
