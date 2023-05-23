@@ -28,11 +28,16 @@ def upload():
         #           if arquivo.endswith('.png'):
         #               os.remove(os.path.join(pasta, arquivo))
         #taking image from flutter front-end 
+        
         imagefile=request.files['imagem']
         filename=secure_filename(imagefile.filename)
         #saving image temporarily in "upload" folder 
         #img="./upload/"+filename
-        imagefile.save("./upload/"+filename)
+        
+        input_path = os.path.join("./upload/", filename)
+        cv2.imwrite(input_path, imagefile)
+        
+        #imagefile.save("./upload/"+filename)
         
         return filename
 
