@@ -17,11 +17,16 @@ def instructions():
 def upload():
    if request.method=="POST":
         pastatemp = 'temp/'
+        pastastitchImage = 'stitchImage/'
         pasta = 'upload/'
         
         if not os.path.exists('upload/'):
             os.makedirs('upload/')
         
+        if os.path.exists(pastastitchImage):
+            for arquivo in os.listdir(pastastitchImage):
+                os.remove(os.path.join(pastastitchImage, arquivo))
+                
         if os.path.exists(pastatemp):
             for arquivo in os.listdir(pastatemp):
                 os.remove(os.path.join(pastatemp, arquivo))
@@ -46,7 +51,8 @@ def get_stitched_image():
         return jsonify({'error': 'Stitched image not found.'}), 404
 
     for arquivo in os.listdir(pasta):
-        os.remove(os.path.join(pasta, arquivo))
+        for arquivo in os.listdir(pastatemp):
+            os.remove(os.path.join(pasta, arquivo))
 
     return send_file(stitched_image_path, mimetype='image/png')
 
@@ -107,6 +113,7 @@ def stitch_images():
         stitched_image = stitched_image[y:y + h, x:x + w]
 
         # Save stitched image to output directory    
+        
         output_dir = 'stitchImage/'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
